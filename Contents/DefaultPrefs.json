@@ -1,0 +1,9 @@
+[
+    {
+        "id":       "playlist",
+        "label":    "Playlist file name or URL (requires restart)",
+        "type":     "text",
+        "default":  "feeds.pls"
+    }
+
+]
