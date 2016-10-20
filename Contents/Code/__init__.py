@@ -9,12 +9,14 @@ MINUS = 'minus.png'
 HUGEM = 'hugem.png'
 plist = []
 Dict['feed'] = plist
+
 ####################################################################################################
 def Start():
 
 	ObjectContainer.art = R(ART)
 	ObjectContainer.title1 = 'PlexPod'
 	TrackObject.thumb = R(ICON)
+
 ####################################################################################################     
 @handler('/music/PlexPod', 'PlexPod', thumb=ICON, art=ART)
 def MainMenu(nameofshow=None, urlofshow=None, artofshow=None):
@@ -68,7 +70,11 @@ def DelMenuTwo(title):
 def SecondMenu(title):
 	oc = ObjectContainer()
 	feed = RSS.FeedFromURL(title)
-	for item in feed.entries[::-1]:
+	if Prefs["Sortord"]:
+		mal = 1
+	else:
+		mal = -1
+	for item in feed.entries[::mal]:
 		url = item.enclosures[0]['url']
 		title = item.title
 		summary = strip_tags(item.summary)
@@ -76,7 +82,7 @@ def SecondMenu(title):
 		duration = Datetime.MillisecondsFromString(item.itunes_duration)
 		try:
 			image = str(feed.channel.image.url)
-			oc.add(CreateTrackObject(url=url, title=item.title, thumb=image, summary=summary, originally_available_at=originally_available_at, duration=duration))
+			oc.add(CreateTrackObject(url=url, title=title, thumb=image, summary=summary, originally_available_at=originally_available_at, duration=duration))
 			oc.art=image
 			oc.title1=feed.channel.title
 		except:
