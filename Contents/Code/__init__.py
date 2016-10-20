@@ -19,7 +19,7 @@ def Start():
 @handler('/music/PlexPod', 'PlexPod', thumb=ICON, art=ART)
 def MainMenu(nameofshow=None, urlofshow=None, artofshow=None):
 	oc = ObjectContainer()
-	if nameofshow != None:
+	if (nameofshow!=None) and (urlofshow!=None) and (artofshow!=None):
 		ugly=[nameofshow, urlofshow, artofshow]
 		if ugly not in plist:
 			plist.append(ugly)
@@ -39,12 +39,10 @@ def MainMenu(nameofshow=None, urlofshow=None, artofshow=None):
 
 def DelMenu(title):
 	oc = ObjectContainer()
-	try:	
+	if (title != None):	
 		plist.remove(title)
 		Dict['feed'] = plist
 		Dict.Save()
-	except:
-		pass
 	for x in Dict['feed']:
 		try:
 			oc.add(DirectoryObject(key=Callback(DelMenuTwo, title=x), title=x[0], thumb = x[2]))
@@ -55,12 +53,10 @@ def DelMenu(title):
 
 def DelMenuTwo(title):
 	oc = ObjectContainer()
-	try:	
+	if (title != None):
 		plist.remove(title)
 		Dict['feed'] = plist
 		Dict.Save()
-	except:
-		pass
 	for x in Dict['feed']:
 		try:
 			oc.add(DirectoryObject(key=Callback(DelMenu, title=x), title=x[0], thumb = x[2]))
