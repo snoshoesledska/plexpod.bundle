@@ -1,8 +1,14 @@
 from HTMLParser import HTMLParser
+import urllib2
+import json
 
 ART = 'art-default.jpg'
 ICON = 'icon-default.png'
+PLUS = 'plus.png'
+MINUS = 'minus.png'
+HUGEM = 'hugem.png'
 plist = []
+Dict['feed'] = plist
 ####################################################################################################
 def Start():
 
@@ -11,20 +17,59 @@ def Start():
 	TrackObject.thumb = R(ICON)
 ####################################################################################################     
 @handler('/music/PlexPod', 'PlexPod', thumb=ICON, art=ART)
-def MainMenu():
-	playlistgrab()
+def MainMenu(nameofshow=None, urlofshow=None, artofshow=None):
 	oc = ObjectContainer()
-	for x in plist:
-		feed = RSS.FeedFromURL(x)
+	if nameofshow != None:
+		ugly=[nameofshow, urlofshow, artofshow]
+		if ugly not in plist:
+			plist.append(ugly)
+		plist.sort(key=lambda x: x[0])
+		oc = ObjectContainer()
+		Dict['feed'] = plist
+		Dict.Save()
+
+	for x in Dict['feed']:
 		try:
-			image = str(feed.channel.image.url)
-			oc.add(DirectoryObject(key=Callback(SecondMenu, title=x), title=feed.channel.title, thumb = image))
+			oc.add(DirectoryObject(key=Callback(SecondMenu, title=x[1]), title=x[0], thumb = x[2]))
 		except:
-			oc.add(DirectoryObject(key=Callback(SecondMenu, title=x), title=feed.channel.title))
+			pass
+	oc.add(InputDirectoryObject(key=Callback(Search), title="Add a Podcast", thumb = R(PLUS)))
+	oc.add(DirectoryObject(key=Callback(DelMenu, title=None), title="Delete a Podcast", thumb = R(MINUS)))
+	return oc
+
+def DelMenu(title):
+	oc = ObjectContainer()
+	try:	
+		plist.remove(title)
+		Dict['feed'] = plist
+		Dict.Save()
+	except:
+		pass
+	for x in Dict['feed']:
+		try:
+			oc.add(DirectoryObject(key=Callback(DelMenuTwo, title=x), title=x[0], thumb = x[2]))
+		except:
+			pass
+	oc.add(DirectoryObject(key=Callback(MainMenu), title="Main Menu", thumb = R(HUGEM)))
+	return oc
+
+def DelMenuTwo(title):
+	oc = ObjectContainer()
+	try:	
+		plist.remove(title)
+		Dict['feed'] = plist
+		Dict.Save()
+	except:
+		pass
+	for x in Dict['feed']:
+		try:
+			oc.add(DirectoryObject(key=Callback(DelMenu, title=x), title=x[0], thumb = x[2]))
+		except:
+			pass
+	oc.add(DirectoryObject(key=Callback(MainMenu), title="Main Menu", thumb = R(HUGEM)))
 	return oc
 
 def SecondMenu(title):
-	playlistgrab()
 	oc = ObjectContainer()
 	feed = RSS.FeedFromURL(title)
 	for item in feed.entries[::-1]:
@@ -39,8 +84,7 @@ def SecondMenu(title):
 			oc.art=image
 			oc.title1=feed.channel.title
 		except:
-			oc.add(CreateTrackObject(url=url, title=item.title, summary=summary, originally_available_at=originally_available_at, duration=duration))
-			oc.title1=feed.channel.title
+			pass
 	return oc
 	
 
@@ -94,11 +138,12 @@ def strip_tags(html):
     s = MLStripper()
     s.feed(html)
     return s.get_data()
-    
-def playlistgrab():
-	playlist = Resource.Load(Prefs['playlist'], binary = True)
-	lines = playlist.splitlines()
-	del plist[:] 
-	for x in lines:
-		if (str(x)[:1] != '#') and (str(x)[:1] != ''):
-			plist.append(x)
+
+def Search(query):
+	oc = ObjectContainer()
+	neary = str(query.replace (" ", "+"))
+	pod = json.load(urllib2.urlopen("https://itunes.apple.com/search?term=%s&entity=podcast&limit=25" % neary))['results']
+	for x in pod:
+		oc.add(DirectoryObject(key=Callback(MainMenu, urlofshow=[x][0]['feedUrl'], nameofshow=[x][0]['collectionName'], artofshow=[x][0]['artworkUrl600']), title=[x][0]['collectionName'], thumb=[x][0]['artworkUrl600']))
+	oc.title1=query
+	return oc
