@@ -7,8 +7,7 @@ ICON = 'icon-default.png'
 PLUS = 'plus.png'
 MINUS = 'minus.png'
 HUGEM = 'hugem.png'
-plist = []
-Dict['feed'] = plist
+Dict['feed'] = []
 
 ####################################################################################################
 def Start():
@@ -23,11 +22,10 @@ def MainMenu(nameofshow=None, urlofshow=None, artofshow=None):
 	oc = ObjectContainer()
 	if (nameofshow!=None) and (urlofshow!=None) and (artofshow!=None):
 		ugly=[nameofshow, urlofshow, artofshow]
-		if ugly not in plist:
-			plist.append(ugly)
-		plist.sort(key=lambda x: x[0])
+		if ugly not in Dict['feed']:
+			Dict['feed'].append(ugly)
+		Dict['feed'].sort(key=lambda x: x[0])
 		oc = ObjectContainer()
-		Dict['feed'] = plist
 		Dict.Save()
 
 	for x in Dict['feed']:
@@ -41,13 +39,14 @@ def MainMenu(nameofshow=None, urlofshow=None, artofshow=None):
 
 def DelMenu(title):
 	oc = ObjectContainer()
-	if (title != None):	
-		plist.remove(title)
-		Dict['feed'] = plist
+	try:	
+		Dict['feed'].remove(title)
 		Dict.Save()
+	except:
+		pass
 	for x in Dict['feed']:
 		try:
-			oc.add(DirectoryObject(key=Callback(DelMenuTwo, title=x), title=x[0], thumb = x[2]))
+			oc.add(DirectoryObject(key=Callback(DelMenu, title=x), title=x[0], thumb = x[2]))
 		except:
 			pass
 	oc.add(DirectoryObject(key=Callback(MainMenu), title="Main Menu", thumb = R(HUGEM)))
@@ -55,10 +54,11 @@ def DelMenu(title):
 
 def DelMenuTwo(title):
 	oc = ObjectContainer()
-	if (title != None):
-		plist.remove(title)
-		Dict['feed'] = plist
+	try:	
+		Dict['feed'].remove(title)
 		Dict.Save()
+	except:
+		pass
 	for x in Dict['feed']:
 		try:
 			oc.add(DirectoryObject(key=Callback(DelMenu, title=x), title=x[0], thumb = x[2]))
