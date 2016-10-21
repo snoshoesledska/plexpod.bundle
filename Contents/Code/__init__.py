@@ -30,7 +30,7 @@ def MainMenu(nameofshow=None, urlofshow=None, artofshow=None):
 
 	for x in Dict['feed']:
 		try:
-			oc.add(DirectoryObject(key=Callback(SecondMenu, title=x[1]), title=x[0], thumb = x[2]))
+			oc.add(DirectoryObject(key=Callback(SecondMenu, title=x[1], offset=0), title=x[0], thumb = x[2]))
 		except:
 			pass
 	oc.add(InputDirectoryObject(key=Callback(Search), title="Add a Podcast", thumb = R(PLUS)))
@@ -52,46 +52,31 @@ def DelMenu(title):
 	oc.add(DirectoryObject(key=Callback(MainMenu), title="Main Menu", thumb = R(HUGEM)))
 	return oc
 
-def DelMenuTwo(title):
-	oc = ObjectContainer()
-	try:	
-		Dict['feed'].remove(title)
-		Dict.Save()
-	except:
-		pass
-	for x in Dict['feed']:
-		try:
-			oc.add(DirectoryObject(key=Callback(DelMenu, title=x), title=x[0], thumb = x[2]))
-		except:
-			pass
-	oc.add(DirectoryObject(key=Callback(MainMenu), title="Main Menu", thumb = R(HUGEM)))
-	return oc
 
-def SecondMenu(title):
+def SecondMenu(title, offset):
 	oc = ObjectContainer()
 	feed = RSS.FeedFromURL(title)
 	if Prefs["Sortord"]:
 		mal = 1
 	else:
 		mal = -1
-	for item in feed.entries[::mal]:
+	for item in feed.entries[::mal][offset:offset+26]:
 		url = item.enclosures[0]['url']
-		title = item.title
+		showtitle = item.title
 		summary = strip_tags(item.summary)
-		originally_available_at = Datetime.ParseDate(item.updated)
-		duration = Datetime.MillisecondsFromString(item.itunes_duration)
 		try:
 			image = str(feed.channel.image.url)
-			oc.add(CreateTrackObject(url=url, title=title, thumb=image, summary=summary, originally_available_at=originally_available_at, duration=duration))
+			oc.add(CreateTrackObject(url=url, title=showtitle, thumb=image, summary=summary))
 			oc.art=image
 			oc.title1=feed.channel.title
 		except:
 			pass
+	oc.add(DirectoryObject(key=Callback(SecondMenu, title=title, offset=offset+26), title="Next Page", thumb = image))
 	return oc
 	
 
 ####################################################################################################
-def CreateTrackObject(url, title, thumb, summary, originally_available_at, duration, include_container=False):
+def CreateTrackObject(url, title, thumb, summary, include_container=False):
 
 	if url.endswith('.mp3'):
 		container = 'mp3'
@@ -101,13 +86,11 @@ def CreateTrackObject(url, title, thumb, summary, originally_available_at, durat
 		audio_codec = AudioCodec.AAC
 
 	track_object = TrackObject(
-		key = Callback(CreateTrackObject, url=url, title=title, thumb=thumb, summary=summary, originally_available_at=originally_available_at, duration=duration, include_container=True),
+		key = Callback(CreateTrackObject, url=url, title=title, thumb=thumb, summary=summary, include_container=True),
 		rating_key = url,
 		title = title,
 		thumb=thumb,
 		summary = summary,
-		originally_available_at = originally_available_at,
-		duration = duration,
 		items = [
 			MediaObject(
 				parts = [
