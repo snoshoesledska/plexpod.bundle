@@ -7,7 +7,7 @@ ICON = 'icon-default.png'
 PLUS = 'plus.png'
 MINUS = 'minus.png'
 HUGEM = 'hugem.png'
-Dict['feed'] = []
+Dict['feed']
 
 ####################################################################################################
 def Start():
@@ -147,5 +147,4 @@ def Search(query):
 	pod = json.load(urllib2.urlopen("https://itunes.apple.com/search?term=%s&entity=podcast&limit=25" % neary))['results']
 	for x in pod:
 		oc.add(DirectoryObject(key=Callback(MainMenu, urlofshow=[x][0]['feedUrl'], nameofshow=[x][0]['collectionName'], artofshow=[x][0]['artworkUrl600']), title=[x][0]['collectionName'], thumb=[x][0]['artworkUrl600']))
-	oc.title1=query
 	return oc
