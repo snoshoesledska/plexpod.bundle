@@ -7,7 +7,6 @@ ICON = 'icon-default.png'
 PLUS = 'plus.png'
 MINUS = 'minus.png'
 HUGEM = 'hugem.png'
-Dict['feed']
 
 ####################################################################################################
 def Start():
@@ -15,6 +14,10 @@ def Start():
 	ObjectContainer.art = R(ART)
 	ObjectContainer.title1 = 'PlexPod'
 	TrackObject.thumb = R(ICON)
+
+	# Initialize Dict if it does not exist yet
+	if not Dict['feed']:
+		Dict['feed'] = []
 
 ####################################################################################################     
 @handler('/music/PlexPod', 'PlexPod', thumb=ICON, art=ART)
