@@ -1,4 +1,3 @@
-from HTMLParser import HTMLParser
 import urllib2
 import json
 
@@ -66,7 +65,7 @@ def SecondMenu(title, offset):
 	for item in feed.entries[::mal][offset:offset+26]:
 		url = item.enclosures[0]['url']
 		showtitle = item.title
-		summary = strip_tags(item.summary)
+		summary = String.StripTags(item.summary)
 		try:
 			image = str(feed.channel.image.url)
 			oc.add(CreateTrackObject(url=url, title=showtitle, thumb=image, summary=summary))
@@ -111,21 +110,6 @@ def CreateTrackObject(url, title, thumb, summary, include_container=False):
 	else:
 		return track_object
 
-
-
-class MLStripper(HTMLParser):
-    def __init__(self):
-        self.reset()
-        self.fed = []
-    def handle_data(self, d):
-        self.fed.append(d)
-    def get_data(self):
-        return ''.join(self.fed)
-
-def strip_tags(html):
-    s = MLStripper()
-    s.feed(html)
-    return s.get_data()
 
 def Search(query):
 	oc = ObjectContainer()
