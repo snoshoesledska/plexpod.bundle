@@ -1,6 +1,3 @@
-import urllib2
-import json
-
 ART = 'art-default.jpg'
 ICON = 'icon-default.png'
 PLUS = 'plus.png'
@@ -114,7 +111,7 @@ def CreateTrackObject(url, title, thumb, summary, include_container=False):
 def Search(query):
 	oc = ObjectContainer()
 	neary = str(query.replace (" ", "+"))
-	pod = json.load(urllib2.urlopen("https://itunes.apple.com/search?term=%s&entity=podcast&limit=25" % neary))['results']
+	pod = JSON.ObjectFromURL("https://itunes.apple.com/search?term=%s&entity=podcast&limit=25" % neary)['results']
 	for x in pod:
 		oc.add(DirectoryObject(key=Callback(MainMenu, urlofshow=[x][0]['feedUrl'], nameofshow=[x][0]['collectionName'], artofshow=[x][0]['artworkUrl600']), title=[x][0]['collectionName'], thumb=[x][0]['artworkUrl600']))
 	return oc
